@@ -205,10 +205,29 @@ python -m pytest tests -q          # 41 invariant tests
 hyperparameters, every validation metric, library versions, and the stated
 limitations.
 
-> **On the speedup figure.** Inference latency is measured. The COMSOL reference
-> time is a **user-supplied estimate** declared in `scripts/benchmark.py`, not a
-> timing on this machine. Replace it with a timed solve before quoting any
-> speedup in a publication; the script labels every derived number accordingly.
+### The speedup figure
+
+Inference latency is measured. The COMSOL denominator is **not**, by default —
+timing it needs the model, a COMSOL install, and a reachable licence server.
+`scripts/benchmark.py` therefore labels every derived number `MEASURED` or
+`ESTIMATE` and never quietly presents one as the other.
+
+To turn the estimate into a measurement, on a machine that can check out a
+licence:
+
+```bash
+python scripts/measure_comsol_baseline.py --mph <model.mph> --list-studies
+python scripts/measure_comsol_baseline.py --mph <model.mph> --study std2
+python scripts/benchmark.py        # now reports MEASURED
+```
+
+It writes `outputs/tables/comsol_baseline.json` stamped with the model, study,
+host and timestamp that produced the timing, and `benchmark.py` picks it up
+automatically. Do not edit the placeholder constant by hand.
+
+One gotcha it handles for you: on Windows, `comsol.exe batch` hands off to the
+GUI and exits successfully **without solving anything**. The headless binary is
+`comsolbatch.exe`, which is what the script looks for.
 
 ## Licence
 

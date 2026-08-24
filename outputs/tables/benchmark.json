@@ -1,22 +1,22 @@
 {
-  "generated_utc": "2026-08-24T13:29:31+00:00",
-  "repeats": 80,
+  "generated_utc": "2026-08-24T17:36:46+00:00",
+  "repeats": 40,
   "surrogate_latency_ms": {
-    "n_repeats": 80.0,
+    "n_repeats": 40.0,
     "n_points": 61.0,
-    "single_point_median_ms": 1.9730499770957977,
-    "single_point_p25_ms": 1.9555000108084641,
-    "single_point_p75_ms": 1.9902249914593995,
-    "trajectory_median_ms": 3.467849994194694,
-    "trajectory_p25_ms": 3.428500007430557,
-    "trajectory_p75_ms": 3.510899994580541,
-    "jv_curve_median_ms": 0.8270999969681725,
-    "jv_curve_p25_ms": 0.8134999952744693,
-    "jv_curve_p75_ms": 0.8618249994469807
+    "single_point_median_ms": 2.3190499923657626,
+    "single_point_p25_ms": 2.2709250115440227,
+    "single_point_p75_ms": 2.4781500178505667,
+    "trajectory_median_ms": 4.531249986030161,
+    "trajectory_p25_ms": 4.338250000728294,
+    "trajectory_p75_ms": 4.798150002898183,
+    "jv_curve_median_ms": 1.1148500052513555,
+    "jv_curve_p25_ms": 1.0756749907159247,
+    "jv_curve_p75_ms": 1.1784250018536113
   },
   "comsol_reference_seconds": 240.0,
   "comsol_reference_measured": false,
-  "comsol_reference_note": "User-supplied estimate for one COMSOL drift-diffusion aging run (10 aging points with J-V sweeps). NOT measured on this machine. Replace COMSOL_SECONDS_PER_RUN in scripts/benchmark.py with a timed solve before quoting any speedup in a publication.",
-  "speedup_estimate": 69207.14575364237,
+  "comsol_reference_note": "Placeholder estimate for one COMSOL drift-diffusion aging run. NOT a measurement. Run scripts/measure_comsol_baseline.py on a machine with a reachable COMSOL licence to replace it with a timed solve; this script picks the result up automatically.",
+  "speedup": 52965.51740467194,
   "speedup_is_estimate": true
 }

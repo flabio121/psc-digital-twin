@@ -93,6 +93,32 @@ metrics, and that lifetimes are never invented when a threshold is not reached.
 
 ---
 
+## Measuring the COMSOL baseline
+
+The speedup headline needs a denominator, and it is the one number this project
+cannot measure on an arbitrary machine. Run this once, from anywhere with a
+COMSOL licence:
+
+```bash
+python scripts/measure_comsol_baseline.py --mph <model.mph> --list-studies
+python scripts/measure_comsol_baseline.py --mph <model.mph> --study <tag>
+```
+
+`--list-studies` reads the study tags straight out of the `.mph` (which is a ZIP
+holding an XML action log), so it needs no licence and takes no time. Pick the
+study that corresponds to one aging run with its diagnostic J-V sweeps. If that
+study contains a parametric sweep over several conditions, pass
+`--parameter-points N` so the per-condition figure is right.
+
+The result lands in `outputs/tables/comsol_baseline.json` and `benchmark.py`
+uses it automatically, relabelling the speedup `MEASURED`.
+
+**If it fails on a licence error**, that is a network problem rather than a model
+problem — connect to your institution's VPN and retry. The script says so
+explicitly and names the host it tried to reach.
+
+---
+
 ## Notes for a reviewer or committee member
 
 - **Advanced → Model & validation** has the held-out metrics, the parity plots,
