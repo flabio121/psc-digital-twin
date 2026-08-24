@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: "PSC Digital Twin: a climate-aware Gaussian-process surrogate for perovskite solar cell degradation"
+message: "If you use this software or its data, please cite it as below."
+type: software
+authors:
+  - family-names: Tippin
+    given-names: Favian
+    affiliation: Arizona State University
+abstract: >
+  An open web application that replaces expensive COMSOL drift-diffusion
+  simulations of perovskite solar cell degradation with a Gaussian-process
+  surrogate trained on a 36-run full-factorial illumination/temperature
+  campaign. Full J-V curves are predicted through a proper-orthogonal-
+  decomposition basis with Gaussian-process mode coefficients. The application
+  reports calibrated predictive uncertainty, refuses to produce numbers outside
+  its validated design envelope, and recommends the next most informative
+  simulation to run.
+keywords:
+  - perovskite solar cells
+  - surrogate modeling
+  - Gaussian process
+  - proper orthogonal decomposition
+  - digital twin
+  - photovoltaic degradation
+  - active learning
+license: MIT

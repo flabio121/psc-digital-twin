@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.ipynb_checkpoints/
+.DS_Store
+
+# Generated at runtime; the validation tables under outputs/tables/ are kept
+# because README.md and docs/ cite their numbers.
+outputs/*
+!outputs/tables/
+outputs/tables/*
+!outputs/tables/*.csv
+!outputs/tables/*.json

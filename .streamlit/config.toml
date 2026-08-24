@@ -1,0 +1,20 @@
+# Pinned to a single deliberate light theme. This is a scientific instrument
+# people screenshot into slides and papers, so a stable appearance is worth more
+# than theme flexibility. psc_twin/ui/theme.py extends these tokens.
+[theme]
+base = "light"
+primaryColor = "#2563EB"
+backgroundColor = "#F7F9FC"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#0F172A"
+linkColor = "#2563EB"
+borderColor = "#E3E8EF"
+showWidgetBorder = true
+
+[server]
+headless = true
+# The 8 MB default is far more than this app needs; nothing here accepts uploads.
+maxUploadSize = 5
+
+[browser]
+gatherUsageStats = false
