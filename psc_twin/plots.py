@@ -491,9 +491,14 @@ def climate_schedule(df: pd.DataFrame, *, name: str = "") -> Figure:
     if scol:
         ax2 = ax1.twinx()
         ax2.plot(x, df[scol], color=SERIES[0], marker="s", markersize=4, label="Illumination")
-        ax2.set_ylabel("Effective illumination (suns)", color=SERIES[0])
+        ax2.set_ylabel("Mean daylight illumination (suns)", color=SERIES[0])
         ax2.tick_params(axis="y", labelcolor=SERIES[0])
         ax2.grid(False)
+        # Anchor at zero. Mean daylight intensity barely moves through the year
+        # (a desert sits near 0.5 suns in every month), and autoscaling a few
+        # percent of variation draws it as a dramatic seasonal swing it is not.
+        top = float(np.nanmax(df[scol].to_numpy(dtype=float)))
+        ax2.set_ylim(0.0, max(top * 1.25, 0.1))
 
     ax1.set_xlabel("Month")
     ax1.set_title(f"Climate stress schedule{' - ' + name if name else ''}", fontsize=10)

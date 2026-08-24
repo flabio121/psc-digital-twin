@@ -114,13 +114,49 @@ fixed 1-sun efficiency reference described in [METHODS.md](METHODS.md) §1.1.
 
 ### Held-out curve accuracy
 
-See `outputs/tables/cv_jv_summary.csv` and `cv_jv_metric_scores.csv`, regenerated
-by `scripts/train_models.py`. The tables report end-to-end curve RMSE, its
-normalisation against J<sub>sc</sub>, per-point interval coverage, and — as a
-deliberate cross-check — the figures of merit recovered from the *predicted*
-curve compared against the direct scalar surrogate. If the curve route is worse
-than predicting a number directly, that is reported rather than hidden; it is a
-genuinely useful result either way.
+Leave-one-run-out, POD basis rebuilt per fold (741 s across 12 cores):
+
+| Quantity | Value |
+|---|---|
+| POD truncation RMSE (basis only, no GP) | 0.0087 mA cm⁻² |
+| POD truncation NRMSE | 0.043% of J<sub>sc</sub> |
+| **End-to-end curve RMSE (POD + GP)** | **0.398 mA cm⁻²** |
+| **End-to-end curve NRMSE** | **1.95% of J<sub>sc</sub>** |
+| Per-point 95% coverage | 0.969 |
+
+An entire J-V curve for a never-seen stress condition is reproduced to within
+about 2% of short-circuit current. The gap between the 0.043% truncation floor
+and the 1.95% end-to-end figure is regression error, not basis error — the basis
+is nowhere near the limiting factor, so adding more modes would not help. More
+*simulations* would.
+
+Per-point interval coverage of 0.969 is mildly **conservative** against the
+nominal 0.95, in contrast to the slightly over-confident scalar bands. The curve
+bands, if anything, over-state uncertainty.
+
+### Predicting a number directly beats reading it off a predicted curve
+
+A deliberate cross-check, because it is the obvious question and the answer is
+not free: is it better to predict PCE directly, or to predict the whole curve and
+extract PCE from it?
+
+| Metric | MAE, direct scalar GP | MAE, extracted from predicted curve | Ratio |
+|---|---|---|---|
+| J<sub>sc</sub> (mA cm⁻²) | 0.00518 | 0.00821 | 1.58× worse |
+| V<sub>oc</sub> (V) | 0.00040 | 0.00055 | 1.38× worse |
+| Fill factor | 0.00069 | 0.00119 | 1.72× worse |
+| PCE (%) | 0.02622 | 0.03773 | 1.44× worse |
+
+**The direct route wins on every figure of merit**, by roughly 1.4–1.7×. This is
+expected in hindsight — extraction compounds the curve's regression error through
+a nonlinear operation (finding a zero crossing, maximising a product) — but it is
+worth measuring rather than assuming.
+
+The practical consequence, and how the app is built: **the scalar surrogate
+supplies every number; the curve surrogate supplies curves.** Neither is
+redundant, and the app never quietly substitutes one for the other. The curve
+model's R² is still 0.998 on all four figures of merit, so it is not inaccurate —
+merely second-best for a job the other model does directly.
 
 ---
 
@@ -130,18 +166,42 @@ Models are retrained on 6, 12, 18, 24 and 30 randomly drawn **whole runs** and
 scored on the remainder. Sampling whole runs, never individual rows, preserves the
 grouping.
 
-This answers the question a reviewer asks first — *is 36 simulations enough?* —
-and both possible answers are publishable:
+This answers the question a reviewer asks first — *is 36 simulations enough?*
 
-- A **flattened** curve means the design is saturated. Further runs at the same
-  spacing buy little, and effort is better spent widening the envelope than
-  filling it in.
-- A **still-falling** curve means the campaign is under-sampled, additional
-  simulations would still pay, and the active-learning workspace ranks where to
-  spend them.
+Target: retention (%). Four repeats per size, held out on the remaining runs.
 
-The measured verdict is written into `models/model_card.json` under
-`validation.learning_curve_verdict` and rendered in the app. The raw data is in
+| Training runs | MAE | RMSE | 95% coverage |
+|---|---|---|---|
+| 6 | 2.596 | 5.042 | 0.730 |
+| 12 | 0.505 | 0.942 | 0.909 |
+| 18 | 0.381 | 0.868 | 0.897 |
+| 24 | 0.155 | 0.313 | 0.950 |
+| 30 | 0.106 | 0.240 | 0.958 |
+
+**The measured verdict: the campaign is under-sampled.** Held-out RMSE was still
+falling by 23.2% over the last step (24 → 30 runs). The curve has not flattened,
+so additional simulations at the current spacing would still measurably improve
+accuracy.
+
+This is the less flattering of the two possible answers and it is reported as
+measured. Two things follow, and both are useful:
+
+1. **The model is nonetheless accurate enough to use.** At the full 36 runs,
+   held-out R² exceeds 0.9988 on every target. "Not saturated" is not the same as
+   "not good enough" — it means there is headroom, not that the current model is
+   unreliable.
+2. **It justifies the active-learning workspace concretely.** Since more runs pay,
+   *which* runs to run next is a real question with real value, not a decorative
+   feature. The maximum-variance recommendations in Advanced → Uncertainty & next
+   runs are the answer.
+
+Note also that **calibration improves with data**: coverage climbs from 0.730 at
+six runs to 0.958 at thirty, tracking the nominal 0.95 from below. That is
+textbook Gaussian-process behaviour and independent evidence that the posterior
+is doing its job rather than being tuned.
+
+The verdict is written into `models/model_card.json` under
+`validation.learning_curve_verdict` and rendered in the app. Raw data in
 `outputs/tables/learning_curve.csv`.
 
 ---
@@ -172,8 +232,23 @@ document.
 
 ```bash
 python scripts/train_models.py     # writes every table above
-python -m pytest tests -q          # 41 invariant tests, including no-leakage
+python -m pytest tests -q          # 41 invariant tests, incl. no-leakage
 ```
+
+The full validation is 180 scalar fits plus 144 curve-coefficient fits, each
+with 8 optimiser restarts. Measured serial timings: scalar cross-validation
+1329 s, J-V cross-validation roughly two CPU-hours, learning curve about a
+minute.
+
+`--n-jobs` parallelises both stages and is clearly worth it for the J-V stage
+(741 s across 12 cores). It is *not* reliably worth it for the scalar stage: on
+Windows, joblib's process spawning and array re-pickling can dominate, and a
+measured attempt consumed six times the serial CPU without finishing sooner.
+Measure on your own machine rather than assuming.
+
+`--reuse-validation` regenerates `models/model_card.json` from tables already in
+`outputs/tables/` without recomputing them, recording in the card that they were
+reused.
 
 All estimators use fixed random states. Two runs on the same data produce
 identical artifacts and identical metrics.

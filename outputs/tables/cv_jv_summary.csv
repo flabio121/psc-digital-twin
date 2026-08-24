@@ -1,0 +1,6 @@
+quantity,value,note
+POD truncation RMSE (mA/cm2),0.008720414099032077,"4 modes, no GP involved"
+POD truncation NRMSE (% of Jsc),0.04274577539827127,floor on achievable curve accuracy
+End-to-end curve RMSE (mA/cm2),0.39785667430331173,"leave-one-run-out, POD + GP"
+End-to-end curve NRMSE (% of Jsc),1.9502161075539048,"leave-one-run-out, POD + GP"
+Per-point 95% coverage,0.9689814814814814,share of held-out points inside the band

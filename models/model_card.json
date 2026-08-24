@@ -1,0 +1,387 @@
+{
+  "app_version": "1.0.0",
+  "generated_utc": "2026-08-24T13:28:42+00:00",
+  "quick_mode": false,
+  "training_data": {
+    "n_runs": 36,
+    "n_observations": 360,
+    "n_curves": 360,
+    "n_voltage_points": 72,
+    "illumination_levels": [
+      0.01,
+      0.2,
+      0.4,
+      0.6,
+      0.8,
+      1.0
+    ],
+    "temperature_levels": [
+      26.85,
+      46.85,
+      66.85,
+      86.85,
+      106.85,
+      126.85
+    ],
+    "aging_times_h": [
+      0,
+      50,
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      800,
+      1000
+    ],
+    "voltage_min_v": 0.0,
+    "voltage_max_v": 1.5,
+    "pce_min_pct": 11.860069725554617,
+    "pce_max_pct": 22.61538698755772,
+    "retention_min_pct": 52.44248066397079,
+    "retention_max_pct": 100.0
+  },
+  "design_envelope": {
+    "illumination_suns": [
+      0.01,
+      1.0
+    ],
+    "temperature_c": [
+      26.85,
+      126.85
+    ],
+    "aging_h": [
+      0.0,
+      1000.0
+    ]
+  },
+  "design_levels": {
+    "illumination_suns": [
+      0.01,
+      0.2,
+      0.4,
+      0.6,
+      0.8,
+      1.0
+    ],
+    "temperature_c": [
+      26.85,
+      46.85,
+      66.85,
+      86.85,
+      106.85,
+      126.85
+    ],
+    "aging_h": [
+      0,
+      50,
+      100,
+      200,
+      300,
+      400,
+      500,
+      600,
+      800,
+      1000
+    ]
+  },
+  "architecture": "arch_baseline_pin (single architecture; see limitations)",
+  "scalar_model": {
+    "targets": [
+      "PCE_pct",
+      "Voc_V",
+      "Jsc_mAcm2",
+      "FF",
+      "PCE_retention_pct"
+    ],
+    "kernel": "ConstantKernel * Matern(nu=2.5, ARD) + WhiteKernel",
+    "time_warp": "log1p",
+    "n_restarts_optimizer": 8,
+    "random_state": 0,
+    "fit_seconds": 35.86,
+    "hyperparameters": {
+      "PCE_pct": {
+        "length_scales": {
+          "aging_light_suns": 10.98712287533718,
+          "aging_temperature_C": 10.113999464512142,
+          "aging_h": 8.38664741274265
+        },
+        "noise_level": 9.07395219375348e-06,
+        "log_marginal_likelihood": 980.4344926561591
+      },
+      "Voc_V": {
+        "length_scales": {
+          "aging_light_suns": 9.932926805777194,
+          "aging_temperature_C": 10.522140641449068,
+          "aging_h": 9.387065165878445
+        },
+        "noise_level": 3.4718407919708695e-05,
+        "log_marginal_likelihood": 922.4752214364207
+      },
+      "Jsc_mAcm2": {
+        "length_scales": {
+          "aging_light_suns": 31.590065621961504,
+          "aging_temperature_C": 17.01057188383331,
+          "aging_h": 21.863417854721977
+        },
+        "noise_level": 1.0000000000000007e-09,
+        "log_marginal_likelihood": 1009.1647734558969
+      },
+      "FF": {
+        "length_scales": {
+          "aging_light_suns": 10.205072325628553,
+          "aging_temperature_C": 7.811294192054134,
+          "aging_h": 6.7005266842323445
+        },
+        "noise_level": 2.7707677280149855e-05,
+        "log_marginal_likelihood": 870.6929557662795
+      },
+      "PCE_retention_pct": {
+        "length_scales": {
+          "aging_light_suns": 10.984218023890534,
+          "aging_temperature_C": 10.111437191529669,
+          "aging_h": 8.38445698020062
+        },
+        "noise_level": 9.074488915348289e-06,
+        "log_marginal_likelihood": 980.4344918231677
+      }
+    }
+  },
+  "jv_model": {
+    "method": "POD (SVD) basis with one GP per mode coefficient",
+    "n_modes": 4,
+    "explained_variance_ratio": [
+      0.973679216210415,
+      0.02332733011756716,
+      0.0029294719381612023,
+      6.203005657366202e-05
+    ],
+    "cumulative_energy": 0.999998048322717,
+    "truncation_rmse_mAcm2": 0.008720414099032077,
+    "truncation_nrmse_pct_of_jsc": 0.04274577539827127,
+    "voltage_points": 72,
+    "scan_illumination_suns": 1.0,
+    "efficiency_reference_mW_cm2": 100.0,
+    "fit_seconds": 35.82
+  },
+  "capability_tiers": {
+    "Validated": 10,
+    "Preview": 3,
+    "Planned": 10
+  },
+  "design_coverage": {
+    "n_design_points": 36,
+    "illumination_levels": 6,
+    "temperature_levels": 6,
+    "is_full_factorial": true
+  },
+  "environment": {
+    "python": "3.11.15",
+    "numpy": "2.1.3",
+    "pandas": "2.2.3",
+    "scikit_learn": "1.5.2",
+    "matplotlib": "3.9.2",
+    "platform": "Windows-10-10.0.22631-SP0"
+  },
+  "limitations": [
+    "Trained on a single device architecture (baseline p-i-n). Predictions for n-i-p or tandem stacks are not supported and the app refuses them.",
+    "No humidity or electrical-bias axis exists in the campaign, so those stress factors cannot influence any prediction.",
+    "Aging was simulated to 1000 h; longer horizons are extrapolation.",
+    "Mechanism attribution is an interpretive overlay, not validated against per-mechanism state variables.",
+    "Efficiency is referenced to a fixed 1-sun diagnostic scan, matching the campaign protocol, not to the aging illumination."
+  ],
+  "validation": {
+    "method": "LeaveOneGroupOut over run_id (36 folds); no ungrouped split anywhere",
+    "source": "Loaded from outputs/tables/, produced by a previous run of this script. Re-run without --reuse-validation to recompute.",
+    "scalar_metrics": [
+      {
+        "target": "PCE_pct",
+        "n_held_out": 360,
+        "MAE": 0.026224435792469,
+        "RMSE": 0.0703596903774743,
+        "R2": 0.9988939160990632,
+        "coverage_95": 0.9111111111111112,
+        "mean_predicted_sd": 0.0385199882503038,
+        "max_abs_error": 0.7097215794802061
+      },
+      {
+        "target": "Voc_V",
+        "n_held_out": 360,
+        "MAE": 0.0003952888793112,
+        "RMSE": 0.000771821028078,
+        "R2": 0.9992886998477406,
+        "coverage_95": 0.925,
+        "mean_predicted_sd": 0.0005612603537466,
+        "max_abs_error": 0.0042255804465283
+      },
+      {
+        "target": "Jsc_mAcm2",
+        "n_held_out": 360,
+        "MAE": 0.0051756095262737,
+        "RMSE": 0.011413788344886,
+        "R2": 0.999335227482585,
+        "coverage_95": 0.9583333333333334,
+        "mean_predicted_sd": 0.011946197975289,
+        "max_abs_error": 0.1018973989889886
+      },
+      {
+        "target": "FF",
+        "n_held_out": 360,
+        "MAE": 0.0006912416297221,
+        "RMSE": 0.0017739899749906,
+        "R2": 0.9988482123675976,
+        "coverage_95": 0.9111111111111112,
+        "mean_predicted_sd": 0.0011001228999985,
+        "max_abs_error": 0.0188035102157754
+      },
+      {
+        "target": "PCE_retention_pct",
+        "n_held_out": 360,
+        "MAE": 0.1159583690327456,
+        "RMSE": 0.3111150140628986,
+        "R2": 0.9988939106143648,
+        "coverage_95": 0.9111111111111112,
+        "mean_predicted_sd": 0.1703261141312061,
+        "max_abs_error": 3.1382382543330607
+      }
+    ],
+    "coverage_verdict": "Mean 95% interval coverage across targets is 0.923, which is well calibrated against the nominal 0.95. Worst target is PCE_pct at 0.911.",
+    "jv_summary": [
+      {
+        "quantity": "POD truncation RMSE (mA/cm2)",
+        "value": 0.008720414099032,
+        "note": "4 modes, no GP involved"
+      },
+      {
+        "quantity": "POD truncation NRMSE (% of Jsc)",
+        "value": 0.0427457753982712,
+        "note": "floor on achievable curve accuracy"
+      },
+      {
+        "quantity": "End-to-end curve RMSE (mA/cm2)",
+        "value": 0.3978566743033117,
+        "note": "leave-one-run-out, POD + GP"
+      },
+      {
+        "quantity": "End-to-end curve NRMSE (% of Jsc)",
+        "value": 1.9502161075539048,
+        "note": "leave-one-run-out, POD + GP"
+      },
+      {
+        "quantity": "Per-point 95% coverage",
+        "value": 0.9689814814814814,
+        "note": "share of held-out points inside the band"
+      }
+    ],
+    "jv_metric_scores": [
+      {
+        "metric": "Jsc_mAcm2",
+        "n": 360,
+        "mae": 0.0082073280218555,
+        "rmse": 0.0187929728462214,
+        "r2": 0.9981977941308128,
+        "source": "extracted from predicted curve"
+      },
+      {
+        "metric": "Voc_V",
+        "n": 360,
+        "mae": 0.0005524020101377,
+        "rmse": 0.0012877805622238,
+        "r2": 0.998019825700746,
+        "source": "extracted from predicted curve"
+      },
+      {
+        "metric": "FF",
+        "n": 360,
+        "mae": 0.0011862419116774,
+        "rmse": 0.0023923789422772,
+        "r2": 0.9979052604595708,
+        "source": "extracted from predicted curve"
+      },
+      {
+        "metric": "PCE_pct",
+        "n": 360,
+        "mae": 0.0377291060015612,
+        "rmse": 0.0776708412897914,
+        "r2": 0.9986521044162988,
+        "source": "extracted from predicted curve"
+      }
+    ],
+    "learning_curve_verdict": "Held-out RMSE was still falling (23.2% over the last step, 24 to 30 runs), so the campaign is under-sampled and additional simulations should still pay. The active-learning workspace ranks where to spend them.",
+    "learning_curve": [
+      {
+        "n_training_runs": 6,
+        "mae": 2.595711059296692,
+        "rmse": 5.042201593992957,
+        "coverage_95": 0.73
+      },
+      {
+        "n_training_runs": 12,
+        "mae": 0.5045014749207227,
+        "rmse": 0.9415379158677066,
+        "coverage_95": 0.909375
+      },
+      {
+        "n_training_runs": 18,
+        "mae": 0.38067069975880985,
+        "rmse": 0.8677066213368287,
+        "coverage_95": 0.8972222222222223
+      },
+      {
+        "n_training_runs": 24,
+        "mae": 0.15490511095434112,
+        "rmse": 0.3127637524597735,
+        "coverage_95": 0.9500000000000001
+      },
+      {
+        "n_training_runs": 30,
+        "mae": 0.10561610412111187,
+        "rmse": 0.24022785924472617,
+        "coverage_95": 0.9583333333333333
+      }
+    ]
+  },
+  "next_runs": [
+    {
+      "rank": 1,
+      "aging_light_suns": 0.926,
+      "aging_temperature_C": 34.4,
+      "uncertainty_score": 1.5458,
+      "distance_to_nearest_run": 0.106,
+      "reason": "The model is least certain here: illumination sits between the tested 1 sun levels and temperature falls between the tested 27 C levels, and the nearest existing run is 0.11 grid units away. Simulating this point would tighten the predictions across the surrounding region."
+    },
+    {
+      "rank": 2,
+      "aging_light_suns": 0.926,
+      "aging_temperature_C": 119.3,
+      "uncertainty_score": 1.5458,
+      "distance_to_nearest_run": 0.106,
+      "reason": "The model is least certain here: illumination sits between the tested 1 sun levels and temperature falls between the tested 127 C levels, and the nearest existing run is 0.11 grid units away. Simulating this point would tighten the predictions across the surrounding region."
+    },
+    {
+      "rank": 3,
+      "aging_light_suns": 0.084,
+      "aging_temperature_C": 34.4,
+      "uncertainty_score": 1.5114,
+      "distance_to_nearest_run": 0.106,
+      "reason": "The model is least certain here: illumination sits between the tested 0.01 sun levels and temperature falls between the tested 27 C levels, and the nearest existing run is 0.11 grid units away. Simulating this point would tighten the predictions across the surrounding region."
+    },
+    {
+      "rank": 4,
+      "aging_light_suns": 0.084,
+      "aging_temperature_C": 119.3,
+      "uncertainty_score": 1.5114,
+      "distance_to_nearest_run": 0.106,
+      "reason": "The model is least certain here: illumination sits between the tested 0.01 sun levels and temperature falls between the tested 127 C levels, and the nearest existing run is 0.11 grid units away. Simulating this point would tighten the predictions across the surrounding region."
+    },
+    {
+      "rank": 5,
+      "aging_light_suns": 0.703,
+      "aging_temperature_C": 116.8,
+      "uncertainty_score": 1.4249,
+      "distance_to_nearest_run": 0.14,
+      "reason": "The model is least certain here: illumination sits between the tested 0.8 sun levels and temperature falls between the tested 107 C levels, and the nearest existing run is 0.14 grid units away. Simulating this point would tighten the predictions across the surrounding region."
+    }
+  ]
+}

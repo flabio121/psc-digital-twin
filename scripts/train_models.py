@@ -62,11 +62,62 @@ def _write(df: pd.DataFrame, name: str) -> Path:
     return path
 
 
+def _validation_from_tables() -> dict[str, object]:
+    """Assemble the card's validation block from tables on disk.
+
+    Used by ``--reuse-validation`` so a model card can be regenerated without
+    repeating a multi-hour cross-validation. The tables must have been written
+    by this same script; the returned block records that they were reused rather
+    than recomputed, so the provenance stays honest.
+    """
+    def read(name: str) -> pd.DataFrame | None:
+        path = TABLE_DIR / name
+        return pd.read_csv(path) if path.exists() else None
+
+    scalar = read("cv_scalar_metrics.csv")
+    jv_summary = read("cv_jv_summary.csv")
+    jv_scores = read("cv_jv_metric_scores.csv")
+    curve = read("learning_curve.csv")
+    if scalar is None:
+        return {}
+
+    block: dict[str, object] = {
+        "method": "LeaveOneGroupOut over run_id (36 folds); no ungrouped split anywhere",
+        "source": (
+            "Loaded from outputs/tables/, produced by a previous run of this "
+            "script. Re-run without --reuse-validation to recompute."
+        ),
+        "scalar_metrics": scalar.to_dict(orient="records"),
+        "coverage_verdict": coverage_verdict(scalar.rename(columns={"coverage_95": "coverage_95"})),
+    }
+    if jv_summary is not None:
+        block["jv_summary"] = jv_summary.to_dict(orient="records")
+    if jv_scores is not None:
+        block["jv_metric_scores"] = jv_scores.to_dict(orient="records")
+    if curve is not None:
+        block["learning_curve_verdict"] = learning_curve_verdict(curve)
+        block["learning_curve"] = (
+            curve.groupby("n_training_runs")[["mae", "rmse", "coverage_95"]]
+            .mean()
+            .reset_index()
+            .to_dict(orient="records")
+        )
+    return block
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--quick", action="store_true", help="fast smoke run")
     parser.add_argument("--n-jobs", type=int, default=None, help="parallel workers for CV")
     parser.add_argument("--skip-cv", action="store_true", help="fit and save only")
+    parser.add_argument(
+        "--reuse-validation",
+        action="store_true",
+        help=(
+            "populate the model card from validation tables already in "
+            "outputs/tables/ instead of recomputing them"
+        ),
+    )
     args = parser.parse_args(argv)
 
     started = time.time()
@@ -105,8 +156,9 @@ def main(argv: list[str] | None = None) -> int:
     scalar_path = scalar_gp.save(scalars)
     print(f"  done in {scalar_fit_s:.1f}s -> {scalar_path.relative_to(ROOT)}")
     for target, model in scalars.models.items():
-        ls = ", ".join(f"{v:.3g}" for v in np.atleast_1d(model.length_scales))
-        print(f"    {target:20s} length scales [{ls}]  noise {model.noise_level:.2e}")
+        # length_scales is a {feature: value} mapping, one entry per ARD dimension.
+        ls = ", ".join(f"{k}={v:.3g}" for k, v in model.length_scales.items())
+        print(f"    {target:20s} {ls}  noise {model.noise_level:.2e}")
 
     # ---- J-V curve surrogate ---------------------------------------------
     print("\nFitting the POD J-V surrogate ...")
@@ -141,7 +193,7 @@ def main(argv: list[str] | None = None) -> int:
             "fit_seconds": round(scalar_fit_s, 2),
             "hyperparameters": {
                 t: {
-                    "length_scales": [float(v) for v in np.atleast_1d(m.length_scales)],
+                    "length_scales": {k: float(v) for k, v in m.length_scales.items()},
                     "noise_level": float(m.noise_level),
                     "log_marginal_likelihood": float(m.log_marginal_likelihood),
                 }
@@ -184,7 +236,16 @@ def main(argv: list[str] | None = None) -> int:
     }
 
     # ---- validation -------------------------------------------------------
-    if not args.skip_cv:
+    if args.reuse_validation:
+        card["validation"] = _validation_from_tables()
+        if card["validation"]:
+            print("\nValidation reused from outputs/tables/ (not recomputed).")
+            for key in ("coverage_verdict", "learning_curve_verdict"):
+                if card["validation"].get(key):
+                    print(f"  {card['validation'][key]}")
+        else:
+            print("\n[warn] --reuse-validation set but no tables found; card has no validation block")
+    elif not args.skip_cv:
         print("\nCross-validating (leave-one-run-out over 36 runs) ...")
         t0 = time.time()
         report = scalar_gp.cross_validate(bundle, config=config, n_jobs=args.n_jobs)

@@ -60,9 +60,20 @@ python -m venv .venv
 # source .venv/bin/activate     # macOS / Linux
 
 pip install -r requirements.txt
-python scripts/train_models.py    # ~40 min for the full validated fit
+python scripts/train_models.py     # fit + full validation
 streamlit run app.py
 ```
+
+**On `--n-jobs`.** It helps the J-V stage substantially (741 s across 12 cores).
+It does **not** reliably help the scalar stage: on Windows, joblib's process
+spawning and array re-pickling can cost more than the fits themselves, and a
+measured run burned 6x the total CPU of the serial path without finishing
+sooner. Measure before relying on it. Serial timings: scalar CV 1329 s,
+J-V CV ~2 CPU-hours, learning curve ~1 min.
+
+`--quick` fits in ~2 min for a smoke test (explicitly not publication grade).
+`--reuse-validation` rebuilds the model card from existing tables in
+`outputs/tables/` without recomputing anything.
 
 `python scripts/train_models.py --quick` fits in a couple of minutes with reduced
 optimiser restarts. It is fine for checking that the pipeline runs, and the

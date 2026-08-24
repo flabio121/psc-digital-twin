@@ -223,9 +223,11 @@ def doe_summary(bundle: DoeBundle) -> dict[str, object]:
         "n_observations": bundle.n_observations,
         "n_curves": int(bundle.curve_matrix.shape[0]),
         "n_voltage_points": int(bundle.curve_matrix.shape[1]),
-        "illumination_levels": sorted(metrics["aging_light_suns"].unique().tolist()),
-        "temperature_levels": sorted(round(v, 2) for v in metrics["aging_temperature_C"].unique()),
-        "aging_times_h": sorted(metrics["aging_h"].unique().tolist()),
+        # Cast to plain Python scalars: numpy types render as "np.float64(26.85)"
+        # in printed output and in the JSON model card, which is noise.
+        "illumination_levels": sorted(float(v) for v in metrics["aging_light_suns"].unique()),
+        "temperature_levels": sorted(round(float(v), 2) for v in metrics["aging_temperature_C"].unique()),
+        "aging_times_h": sorted(int(v) for v in metrics["aging_h"].unique()),
         "voltage_min_v": float(bundle.voltage.min()),
         "voltage_max_v": float(bundle.voltage.max()),
         "pce_min_pct": float(metrics["PCE_pct"].min()),

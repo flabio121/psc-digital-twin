@@ -156,7 +156,8 @@ A failed extraction must stay visible.
 the campaign's published metric table to within 1.1 × 10⁻¹⁴ (PCE), 2.2 × 10⁻¹⁶
 (V<sub>oc</sub>), 0 (J<sub>sc</sub>) and 3.3 × 10⁻¹⁶ (FF) across all 360 curves —
 floating-point agreement, confirming both the extraction and the efficiency
-reference.
+reference. A regression test pins this so the fixed-reference convention cannot
+silently regress.
 
 ---
 
@@ -187,14 +188,46 @@ nobody has checked is decoration.
 
 ### 4.3 Learning curve
 
-Models are retrained on 6, 12, 18, 24 and 30 randomly drawn *whole runs*, five
-repeats each, and scored on the remainder. This answers the question a reviewer
-will ask directly — *is 36 simulations enough?* — and both possible answers are
-publishable. A flattened curve shows the design is saturated; a still-falling
-curve shows the campaign is under-sampled and justifies the active-learning
-workspace.
+Models are retrained on 6, 12, 18, 24 and 30 randomly drawn *whole runs* and
+scored on the remainder. Sampling whole runs, never individual rows, preserves
+the grouping.
 
-Sampling whole runs, never individual rows, preserves the grouping.
+**Measured result: the campaign is under-sampled.** Held-out RMSE on retention
+falls from 5.04 at six runs to 0.240 at thirty, and was still improving by 23.2%
+over the final step (24 → 30 runs). The curve has not flattened.
+
+This is reported because it is what was measured, not because it flatters the
+design. Two consequences follow. First, the model is nonetheless accurate enough
+to use — held-out R² exceeds 0.9988 at the full 36 runs, so "not saturated" means
+headroom remains, not that the current model is unreliable. Second, it gives the
+active-learning layer of Section 5 concrete value: since further runs demonstrably
+pay, *which* runs to perform next is a live question.
+
+Calibration also improves monotonically with data, from 0.730 coverage at six runs
+to 0.958 at thirty, approaching the nominal 0.95 from below. That is the expected
+behaviour of a Gaussian-process posterior and is independent evidence the
+uncertainty is emergent rather than tuned.
+
+### 4.4 Direct prediction versus extraction from a predicted curve
+
+Both surrogates can supply a figure of merit: the scalar model predicts it
+directly, and the curve model permits extracting it from a predicted J-V sweep.
+Measured under identical leave-one-run-out validation, the direct route is more
+accurate on every quantity:
+
+| Metric | MAE, direct scalar GP | MAE, extracted from curve | Ratio |
+|---|---|---|---|
+| J<sub>sc</sub> (mA cm⁻²) | 0.00518 | 0.00821 | 1.58× |
+| V<sub>oc</sub> (V) | 0.00040 | 0.00055 | 1.38× |
+| Fill factor | 0.00069 | 0.00119 | 1.72× |
+| PCE (%) | 0.02622 | 0.03773 | 1.44× |
+
+Extraction compounds the curve's regression error through nonlinear operations —
+locating a zero crossing, maximising a product — so the penalty is expected in
+hindsight, but it is worth measuring rather than assuming. Accordingly the scalar
+surrogate supplies every reported number and the curve surrogate supplies curves;
+the two are never substituted for one another. End-to-end curve accuracy remains
+1.95% of J<sub>sc</sub> with per-point interval coverage of 0.969.
 
 ---
 

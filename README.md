@@ -14,9 +14,20 @@ outside the conditions it was actually trained on.
 
 ```bash
 pip install -r requirements.txt
-python scripts/train_models.py
+python scripts/train_models.py     # fit + full leave-one-run-out validation
 streamlit run app.py
 ```
+
+> **On `--n-jobs`.** It helps the J-V stage substantially (741 s across 12 cores).
+> It does **not** reliably help the scalar stage: on Windows, joblib's process
+> spawning and array re-pickling can cost more than the fits themselves, and a
+> measured run burned 6x the total CPU of the serial path without finishing
+> sooner. Measure before relying on it. Serial timings: scalar CV 1329 s,
+> J-V CV ~2 CPU-hours, learning curve ~1 min.
+>
+> `--quick` fits in ~2 min for a smoke test (explicitly not publication grade).
+> `--reuse-validation` rebuilds the model card from existing tables in
+> `outputs/tables/` without recomputing anything.
 
 ---
 
@@ -92,8 +103,23 @@ of the 95% predictive interval is **0.923** against a nominal 0.95 — slightly
 over-confident, reported as measured rather than tuned. That number is what
 licenses the app to draw error bars at all.
 
-Curve extraction reproduces the campaign's own metric table to floating-point
-agreement (max deviation 1.1×10⁻¹⁴ on PCE) across all 360 curves.
+Full J-V curves are reproduced to **1.95% of Jsc** end-to-end on held-out
+conditions, with per-point interval coverage of 0.969. Curve extraction
+reproduces the campaign's own metric table to floating-point agreement (max
+deviation 1.1×10⁻¹⁴ on PCE) across all 360 curves.
+
+**Two findings worth stating plainly, because neither flatters the model:**
+
+*Predicting a number directly beats reading it off a predicted curve* — by
+1.4–1.7× on every figure of merit. Extraction compounds curve error through a
+nonlinear operation. So the app uses the scalar surrogate for every number and
+the curve surrogate for curves, and never quietly substitutes one for the other.
+
+*The campaign is under-sampled.* The learning curve has not flattened — held-out
+RMSE was still falling 23.2% between 24 and 30 training runs. More simulations
+would still measurably help. That does not make the current model unreliable
+(R² > 0.9988 held out), but it does mean there is headroom, and it is exactly why
+the active-learning workspace earns its place.
 
 Full detail in [docs/VALIDATION.md](docs/VALIDATION.md). Regenerate everything
 with `python scripts/train_models.py`.
@@ -170,9 +196,9 @@ data/doe/                   the 6×6 campaign (CC BY 4.0)
 ## Reproducing
 
 ```bash
-python scripts/train_models.py    # fit + full leave-one-run-out validation
-python scripts/benchmark.py       # inference latency
-python -m pytest tests -q         # test suite
+python scripts/train_models.py     # fit + full leave-one-run-out validation
+python scripts/benchmark.py        # inference latency
+python -m pytest tests -q          # 41 invariant tests
 ```
 
 `models/model_card.json` records the training data, design envelope, fitted

@@ -7,9 +7,9 @@ The rule the whole product depends on:
 
 Tier.VALIDATED  backed by the trained surrogate, inside the COMSOL design
                 envelope. Full results, full colour.
-Tier.PREVIEW    the physics-informed heuristic runs, or the surrogate is
-                extrapolating. Results shown, visibly de-emphasised, with
-                widened uncertainty and a banner.
+Tier.PREVIEW    the surrogate is extrapolating outside its design envelope, or
+                the quantity is an interpretation rather than a measurement.
+                Results shown, visibly de-emphasised, with a banner.
 Tier.PLANNED    no supporting data exists. Controls are disabled and the
                 results area is replaced by a roadmap card. Never a number.
 """
@@ -46,8 +46,10 @@ TIER_BLURB = {
         "drift-diffusion runs and scored on held-out runs."
     ),
     Tier.PREVIEW: (
-        "No trained model covers this yet. A physics-informed heuristic "
-        "fills in, so treat the shape as indicative and the numbers as soft."
+        "Shown, but not backed by held-out validation. Either the surrogate is "
+        "predicting outside the conditions it was trained on -- in which case its "
+        "error bars widen accordingly -- or the quantity is an interpretation "
+        "rather than a measurement. Treat the shape as indicative."
     ),
     Tier.PLANNED: (
         "Not yet supported. The simulation campaign that would ground this "
