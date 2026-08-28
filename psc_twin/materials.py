@@ -27,6 +27,15 @@ class LayerSpec:
 
 LAYERS: tuple[LayerSpec, ...] = (
     LayerSpec(
+        key="front_barrier",
+        label="Front barrier (optional)",
+        role="Environmental barrier or encapsulant on the light-facing side",
+        baseline="None",
+        alternatives=("Al2O3", "Parylene C", "EVA / POE encapsulant"),
+        color="#CBD5E1",
+        thickness="0 nm",
+    ),
+    LayerSpec(
         key="substrate",
         label="Substrate",
         role="Mechanical support and light entry",
@@ -79,6 +88,15 @@ LAYERS: tuple[LayerSpec, ...] = (
         alternatives=("Gold (Au)", "Copper (Cu)", "Carbon"),
         color="#94A3B8",
         thickness="100 nm",
+    ),
+    LayerSpec(
+        key="rear_barrier",
+        label="Rear barrier (optional)",
+        role="Environmental barrier or edge-seal layer behind the rear electrode",
+        baseline="None",
+        alternatives=("Al2O3", "Parylene C", "Epoxy edge seal"),
+        color="#CBD5E1",
+        thickness="0 nm",
     ),
 )
 

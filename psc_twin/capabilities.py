@@ -172,6 +172,21 @@ CAPABILITIES: tuple[Capability, ...] = (
             "surrogate with layer thicknesses as inputs."
         ),
     ),
+    Capability(
+        key="barrier_layers",
+        group="Device geometry",
+        label="Optional barrier and encapsulation layers",
+        tier=Tier.PLANNED,
+        version="v2",
+        backing=(
+            "The ASU thesis COMSOL stack contains no explicit moisture-barrier, "
+            "encapsulant, or edge-seal domain."
+        ),
+        unlocks=(
+            "Add barrier transport and interface properties to COMSOL, then validate "
+            "material and thickness sweeps against encapsulated devices."
+        ),
+    ),
     # ---- stress dimensions ---------------------------------------------
     Capability(
         key="stress_illumination",

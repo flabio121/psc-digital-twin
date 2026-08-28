@@ -63,10 +63,21 @@ def _band(ax, x, mean, std, color: str, label: str | None = None) -> None:
 def cell_stack(materials: dict[str, str]) -> Figure:
     """Draw the currently selected p-i-n stack, illuminated side first."""
     fig, ax = plt.subplots(figsize=(7.2, 5.2))
-    heights = [0.62, 0.48, 0.42, 1.55, 0.46, 0.52]
+    heights = {
+        "front_barrier": 0.28,
+        "substrate": 0.62,
+        "front_contact": 0.48,
+        "htl": 0.42,
+        "absorber": 1.55,
+        "etl": 0.46,
+        "rear_contact": 0.52,
+        "rear_barrier": 0.28,
+    }
     y = 0.0
 
-    for layer, height in reversed(list(zip(LAYERS, heights))):
+    active_layers = [layer for layer in LAYERS if materials[layer.key] != "None"]
+    for layer in reversed(active_layers):
+        height = heights[layer.key]
         selected = materials[layer.key]
         changed = selected != layer.baseline
         face = "#E2E8F0" if changed else layer.color
@@ -95,7 +106,7 @@ def cell_stack(materials: dict[str, str]) -> Figure:
         ax.text(
             0.86,
             y + height / 2,
-            layer.thickness,
+            layer.thickness if layer.baseline != "None" else "planned",
             ha="left",
             va="center",
             fontsize=8,

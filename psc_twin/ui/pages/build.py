@@ -75,6 +75,10 @@ def render(goto: Callable[[str], None]) -> None:
 
     st.markdown("---")
     st.markdown("## 2. Choose a material for every layer")
+    st.caption(
+        "Front and rear barrier layers are optional. Leaving both at None preserves "
+        "the validated ASU thesis stack; adding either one is an exploration-only design."
+    )
 
     controls, visual = st.columns([1.05, 1.15], gap="large")
     with controls:

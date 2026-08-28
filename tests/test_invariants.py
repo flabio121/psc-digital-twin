@@ -71,6 +71,14 @@ class TestPlannedNeverAnswers:
             custom[layer.key] = layer.alternatives[0]
             assert not is_baseline_design(custom), f"{layer.label} alternative did not lock results"
 
+    def test_optional_barriers_default_off_and_lock_when_enabled(self):
+        assert BASELINE_MATERIALS["front_barrier"] == "None"
+        assert BASELINE_MATERIALS["rear_barrier"] == "None"
+        custom = dict(BASELINE_MATERIALS)
+        custom["front_barrier"] = "Al2O3"
+        assert not is_baseline_design(custom)
+        assert capabilities.get("barrier_layers").tier is Tier.PLANNED
+
 
 # --------------------------------------------------------------------------
 # Validation methodology
