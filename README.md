@@ -1,3 +1,14 @@
+---
+title: PSC Digital Twin
+emoji: ☀️
+colorFrom: yellow
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
+
 # PSC Digital Twin
 
 **A climate-aware Gaussian-process surrogate for perovskite solar cell degradation.**
