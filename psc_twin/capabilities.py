@@ -157,6 +157,21 @@ CAPABILITIES: tuple[Capability, ...] = (
             "the surrogate with material identity and properties as inputs."
         ),
     ),
+    Capability(
+        key="geometry_thickness",
+        group="Device geometry",
+        label="Custom layer thickness",
+        tier=Tier.PLANNED,
+        version="v2",
+        backing=(
+            "The ASU thesis COMSOL campaign uses one fixed thickness for each "
+            "layer; thickness was not a surrogate input."
+        ),
+        unlocks=(
+            "Run a thickness-resolved COMSOL design campaign and retrain the "
+            "surrogate with layer thicknesses as inputs."
+        ),
+    ),
     # ---- stress dimensions ---------------------------------------------
     Capability(
         key="stress_illumination",
@@ -222,6 +237,21 @@ CAPABILITIES: tuple[Capability, ...] = (
         version="v3",
         backing="Requires the humidity axis first.",
         unlocks="Combine the moisture model with the 85/85 protocol.",
+    ),
+    Capability(
+        key="stress_live_weather",
+        group="Stress",
+        label="Live rooftop weather",
+        tier=Tier.PLANNED,
+        version="v2",
+        backing=(
+            "No live weather provider, rooftop thermal model, or measured "
+            "site-validation series is connected to this alpha."
+        ),
+        unlocks=(
+            "Connect a weather source, translate ambient conditions into cell "
+            "temperature and irradiance, then validate against rooftop telemetry."
+        ),
     ),
     # ---- predicted outputs ---------------------------------------------
     Capability(

@@ -18,6 +18,11 @@ def _material_label(layer, material: str) -> str:
     return f"{material}  -  locked until COMSOL data exists"
 
 
+def _thickness_parts(thickness: str) -> tuple[float, str]:
+    value, unit = thickness.split(maxsplit=1)
+    return float(value), unit
+
+
 def render(goto: Callable[[str], None]) -> None:
     if st.session_state.pop("_reset_materials", False):
         for layer in LAYERS:
@@ -119,7 +124,31 @@ def render(goto: Callable[[str], None]) -> None:
             )
 
     st.markdown("---")
-    st.markdown("## 3. Choose the aging conditions")
+    st.markdown("## 3. Set each layer thickness")
+    ui.banner(
+        "Thickness values are shown at the ASU thesis COMSOL baseline. The controls "
+        "are visible but locked because the current simulation campaign did not "
+        "sweep geometry, so changing them cannot produce a defensible prediction.",
+        kind="planned",
+        title="Planned · thickness-aware model",
+    )
+    thickness_cols = st.columns(3)
+    for index, layer in enumerate(LAYERS):
+        baseline_value, unit = _thickness_parts(layer.thickness)
+        with thickness_cols[index % 3]:
+            st.number_input(
+                f"{layer.label} ({unit})",
+                value=baseline_value,
+                disabled=True,
+                key=f"thickness_{layer.key}",
+                help=(
+                    f"Fixed ASU thesis baseline: {layer.thickness}. Unlocks after "
+                    "a thickness-resolved COMSOL campaign is validated."
+                ),
+            )
+
+    st.markdown("---")
+    st.markdown("## 4. Choose the aging conditions")
     if not design_is_baseline:
         st.caption("These controls are locked because the selected material stack has no trained model yet.")
 
@@ -187,6 +216,35 @@ def render(goto: Callable[[str], None]) -> None:
                 kind="planned",
                 title="Prediction locked",
             )
+
+        st.markdown("### Live rooftop conditions")
+        ui.banner(
+            "A future connector will use a rooftop location and current weather to "
+            "estimate plane-of-array irradiance, cell temperature, humidity, and "
+            "wind cooling. It is disabled until the weather-to-cell model is "
+            "validated against field telemetry.",
+            kind="planned",
+            title="Planned · real-time weather",
+        )
+        st.text_input(
+            "Rooftop location",
+            value="Connect a weather source to choose a site",
+            disabled=True,
+            key="live_weather_location",
+        )
+        weather_cols = st.columns(2)
+        with weather_cols[0]:
+            st.text_input("Solar irradiance", value="Not connected", disabled=True)
+            st.text_input("Cell temperature", value="Not connected", disabled=True)
+        with weather_cols[1]:
+            st.text_input("Relative humidity", value="Not connected", disabled=True)
+            st.text_input("Wind cooling", value="Not connected", disabled=True)
+        st.toggle(
+            "Use live rooftop conditions",
+            value=False,
+            disabled=True,
+            help="Planned capability; no live data is requested or used in this alpha.",
+        )
 
         if st.button(
             "See how this cell ages",
