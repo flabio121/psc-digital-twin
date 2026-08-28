@@ -141,6 +141,22 @@ CAPABILITIES: tuple[Capability, ...] = (
         unlocks="Build the tandem COMSOL model, then a matched stress campaign.",
         aliases=("tandem",),
     ),
+    Capability(
+        key="materials_custom",
+        group="Device materials",
+        label="Custom layer materials",
+        tier=Tier.PLANNED,
+        version="v2",
+        backing=(
+            "The Arizona State University thesis COMSOL campaign contains only the "
+            "baseline glass / ITO / "
+            "NiOx + MeO-2PACz / Cs0.2FA0.8PbI3 / C60 + BCP / Ag stack."
+        ),
+        unlocks=(
+            "Run and validate a material-resolved COMSOL design campaign, then train "
+            "the surrogate with material identity and properties as inputs."
+        ),
+    ),
     # ---- stress dimensions ---------------------------------------------
     Capability(
         key="stress_illumination",

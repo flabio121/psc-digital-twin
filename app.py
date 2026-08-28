@@ -45,7 +45,7 @@ DEFAULTS = {
     "temperature_c": 85.0,
     "horizon_h": 1000.0,
     "architecture": ARCHITECTURE_VALIDATED,
-    "nav": "Start here",
+    "nav": "Build a cell",
     "curve_time_h": 1000.0,
     "twin_time_h": 600.0,
     "twin_scope": "cell",
@@ -56,11 +56,11 @@ for key, value in DEFAULTS.items():
 
 
 PAGES = {
-    "Start here": start.render,
     "Build a cell": build.render,
     "Results": results.render,
     "Digital twin": twin.render,
     "Advanced": advanced.render,
+    "About the model": start.render,
 }
 
 STEPS = ("Build a cell", "Results", "Digital twin")
@@ -83,6 +83,8 @@ def main() -> None:
     # happen before st.radio(key="nav") exists.
     if "_pending_nav" in st.session_state:
         st.session_state["nav"] = st.session_state.pop("_pending_nav")
+    if st.session_state.get("nav") not in PAGES:
+        st.session_state["nav"] = "Build a cell"
 
     with st.sidebar:
         st.markdown("### \U0001f31e PSC Digital Twin")
@@ -90,6 +92,7 @@ def main() -> None:
             "A fast stand-in for COMSOL drift-diffusion simulations of "
             "perovskite solar cell degradation."
         )
+        st.caption("Data source: Favian Tippin's Arizona State University thesis COMSOL campaign.")
         st.markdown("---")
 
         nav = st.radio(
@@ -98,6 +101,14 @@ def main() -> None:
             index=list(PAGES).index(st.session_state["nav"]),
             key="nav",
             label_visibility="collapsed",
+        )
+
+        st.link_button(
+            "Share alpha feedback",
+            "https://github.com/flabio121/psc-digital-twin/issues/new?"
+            "title=Alpha%20feedback&labels=feedback",
+            width="stretch",
+            help="Report something confusing, broken, or worth adding in the public GitHub repository.",
         )
 
         st.markdown("---")

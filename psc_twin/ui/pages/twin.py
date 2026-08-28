@@ -17,6 +17,7 @@ import streamlit.components.v1 as components
 
 from psc_twin import twin3d
 from psc_twin.capabilities import Tier, get
+from psc_twin.materials import is_baseline_design, selected_materials
 from psc_twin.surrogate import predict as predict_mod
 from psc_twin.ui import components as ui
 
@@ -29,6 +30,12 @@ SCOPES = {
 
 def render(goto: Callable[[str], None]) -> None:
     st.title("Digital twin")
+
+    if not is_baseline_design(selected_materials(st.session_state)):
+        ui.planned_card(get("materials_custom"))
+        if st.button("Return to the cell builder", type="primary"):
+            goto("Build a cell")
+        return
 
     if not predict_mod.models_available():
         ui.banner(

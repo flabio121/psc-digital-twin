@@ -48,7 +48,9 @@ def render(goto: Callable[[str], None]) -> None:
     st.markdown(
         """
         <div class="tw-banner tw-banner-info">
-        Perovskite solar cells are cheap, efficient, and frustratingly short-lived.
+        This app uses the COMSOL campaign generated for Favian Tippin's Arizona
+        State University thesis. Perovskite solar cells are cheap, efficient,
+        and frustratingly short-lived.
         Predicting how fast one degrades normally means a physics simulation that
         takes minutes per condition &mdash; far too slow to explore thousands of
         climates and designs. This app replaces that simulation with a
@@ -69,7 +71,7 @@ def render(goto: Callable[[str], None]) -> None:
         help="Measured median latency for a full aging trajectory. Run scripts/benchmark.py to refresh.",
     )
     cols[1].metric(
-        "Simulations trained on",
+        "ASU thesis simulations",
         "36 runs",
         help="A complete 6x6 grid of illumination and temperature, 10 aging times each.",
     )

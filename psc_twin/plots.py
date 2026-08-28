@@ -26,6 +26,7 @@ from matplotlib.patches import Rectangle
 
 from psc_twin.capabilities import ENVELOPE, ENVELOPE_LEVELS
 from psc_twin.data import TARGET_LABELS, TARGET_SHORT
+from psc_twin.materials import LAYERS
 from psc_twin.ui.theme import (
     BAND_ALPHA,
     BORDER_STRONG,
@@ -57,6 +58,68 @@ def _band(ax, x, mean, std, color: str, label: str | None = None) -> None:
     lo = np.asarray(mean) - _Z95 * std
     hi = np.asarray(mean) + _Z95 * std
     ax.fill_between(x, lo, hi, color=color, alpha=BAND_ALPHA, linewidth=0, label=label)
+
+
+def cell_stack(materials: dict[str, str]) -> Figure:
+    """Draw the currently selected p-i-n stack, illuminated side first."""
+    fig, ax = plt.subplots(figsize=(7.2, 5.2))
+    heights = [0.62, 0.48, 0.42, 1.55, 0.46, 0.52]
+    y = 0.0
+
+    for layer, height in reversed(list(zip(LAYERS, heights))):
+        selected = materials[layer.key]
+        changed = selected != layer.baseline
+        face = "#E2E8F0" if changed else layer.color
+        text_color = TEXT_MUTED if changed else ("white" if layer.key in {"htl", "absorber", "etl"} else "#0F172A")
+        rect = Rectangle(
+            (0.1, y),
+            0.72,
+            height,
+            facecolor=face,
+            edgecolor="#94A3B8" if changed else "white",
+            linewidth=1.5,
+            hatch="///" if changed else None,
+        )
+        ax.add_patch(rect)
+        lock = "  LOCKED" if changed else ""
+        ax.text(
+            0.46,
+            y + height / 2,
+            f"{layer.label}\n{selected}{lock}",
+            ha="center",
+            va="center",
+            fontsize=8.5,
+            fontweight="600",
+            color=text_color,
+        )
+        ax.text(
+            0.86,
+            y + height / 2,
+            layer.thickness,
+            ha="left",
+            va="center",
+            fontsize=8,
+            color=TEXT_FAINT,
+        )
+        y += height
+
+    ax.annotate(
+        "LIGHT",
+        xy=(0.46, y + 0.02),
+        xytext=(0.46, y + 0.52),
+        ha="center",
+        va="bottom",
+        fontsize=9,
+        fontweight="700",
+        color="#D97706",
+        arrowprops={"arrowstyle": "-|>", "color": "#D97706", "lw": 2.0},
+    )
+    ax.text(0.46, -0.25, "rear electrode", ha="center", va="top", fontsize=8, color=TEXT_FAINT)
+    ax.set_xlim(0.0, 1.15)
+    ax.set_ylim(-0.42, y + 0.72)
+    ax.axis("off")
+    ax.set_title("Your layer stack", pad=8)
+    return _finish(fig)
 
 
 # --------------------------------------------------------------------------

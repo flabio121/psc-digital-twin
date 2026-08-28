@@ -15,6 +15,7 @@ import streamlit as st
 from psc_twin import plots
 from psc_twin.capabilities import get
 from psc_twin.data import TARGET_LABELS
+from psc_twin.materials import is_baseline_design, selected_materials
 from psc_twin.surrogate import predict as predict_mod
 from psc_twin.ui import components as ui
 
@@ -33,6 +34,12 @@ def _predict(illumination: float, temperature: float, horizon: float, architectu
 
 def render(goto: Callable[[str], None]) -> None:
     st.title("How this cell ages")
+
+    if not is_baseline_design(selected_materials(st.session_state)):
+        ui.planned_card(get("materials_custom"))
+        if st.button("Return to the cell builder", type="primary"):
+            goto("Build a cell")
+        return
 
     if not predict_mod.models_available():
         ui.banner(

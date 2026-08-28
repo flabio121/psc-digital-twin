@@ -21,6 +21,7 @@ if str(ROOT) not in sys.path:
 from psc_twin import activelearn, capabilities, climate, heuristic, lifetime
 from psc_twin.capabilities import Tier
 from psc_twin.data import FEATURES, TARGETS, load_doe
+from psc_twin.materials import BASELINE_MATERIALS, LAYERS, is_baseline_design
 from psc_twin.surrogate import jv_pod
 
 MODELS_READY = (
@@ -62,6 +63,13 @@ class TestPlannedNeverAnswers:
         for cap in capabilities.by_tier(Tier.PLANNED):
             assert cap.backing.strip(), f"{cap.key} has no backing text"
             assert cap.unlocks.strip(), f"{cap.key} does not say what would unlock it"
+
+    def test_only_the_thesis_material_stack_is_prediction_ready(self):
+        assert is_baseline_design(BASELINE_MATERIALS)
+        for layer in LAYERS:
+            custom = dict(BASELINE_MATERIALS)
+            custom[layer.key] = layer.alternatives[0]
+            assert not is_baseline_design(custom), f"{layer.label} alternative did not lock results"
 
 
 # --------------------------------------------------------------------------
