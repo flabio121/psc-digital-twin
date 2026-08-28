@@ -68,7 +68,9 @@ def cell_stack(materials: dict[str, str]) -> Figure:
         "substrate": 0.62,
         "front_contact": 0.48,
         "htl": 0.42,
+        "htl_absorber_barrier": 0.26,
         "absorber": 1.55,
+        "absorber_etl_barrier": 0.26,
         "etl": 0.46,
         "rear_contact": 0.52,
         "rear_barrier": 0.28,
@@ -81,7 +83,9 @@ def cell_stack(materials: dict[str, str]) -> Figure:
         selected = materials[layer.key]
         changed = selected != layer.baseline
         face = "#E2E8F0" if changed else layer.color
-        text_color = TEXT_MUTED if changed else ("white" if layer.key in {"htl", "absorber", "etl"} else "#0F172A")
+        text_color = TEXT_MUTED if changed else (
+            "white" if layer.key in {"htl", "absorber", "etl"} else "#0F172A"
+        )
         rect = Rectangle(
             (0.1, y),
             0.72,

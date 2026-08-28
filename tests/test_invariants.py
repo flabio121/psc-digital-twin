@@ -79,6 +79,14 @@ class TestPlannedNeverAnswers:
         assert not is_baseline_design(custom)
         assert capabilities.get("barrier_layers").tier is Tier.PLANNED
 
+    def test_internal_interlayers_default_off_and_lock_when_enabled(self):
+        assert BASELINE_MATERIALS["htl_absorber_barrier"] == "None"
+        assert BASELINE_MATERIALS["absorber_etl_barrier"] == "None"
+        custom = dict(BASELINE_MATERIALS)
+        custom["htl_absorber_barrier"] = "SAM + Al2O3 bilayer"
+        assert not is_baseline_design(custom)
+        assert capabilities.get("internal_interlayers").tier is Tier.PLANNED
+
 
 # --------------------------------------------------------------------------
 # Validation methodology

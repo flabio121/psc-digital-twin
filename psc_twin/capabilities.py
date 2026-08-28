@@ -187,6 +187,21 @@ CAPABILITIES: tuple[Capability, ...] = (
             "material and thickness sweeps against encapsulated devices."
         ),
     ),
+    Capability(
+        key="internal_interlayers",
+        group="Device geometry",
+        label="Internal SAM, passivation, and bilayer interfaces",
+        tier=Tier.PLANNED,
+        version="v2",
+        backing=(
+            "The ASU thesis surrogate does not vary internal interface-layer "
+            "identity, thickness, defect density, or ion-blocking properties."
+        ),
+        unlocks=(
+            "Add explicit interface domains or boundary conditions to COMSOL, sweep "
+            "SAM and bilayer properties, and validate against matched devices."
+        ),
+    ),
     # ---- stress dimensions ---------------------------------------------
     Capability(
         key="stress_illumination",

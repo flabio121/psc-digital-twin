@@ -63,6 +63,20 @@ LAYERS: tuple[LayerSpec, ...] = (
         thickness="20 nm",
     ),
     LayerSpec(
+        key="htl_absorber_barrier",
+        label="HTL / absorber interlayer (optional)",
+        role="Internal passivation or ion-blocking layer at the hole-selective interface",
+        baseline="None",
+        alternatives=(
+            "MeO-2PACz SAM",
+            "2D perovskite",
+            "Ultrathin Al2O3",
+            "SAM + Al2O3 bilayer",
+        ),
+        color="#A78BFA",
+        thickness="0 nm",
+    ),
+    LayerSpec(
         key="absorber",
         label="Perovskite absorber",
         role="Absorbs light and generates charge",
@@ -70,6 +84,20 @@ LAYERS: tuple[LayerSpec, ...] = (
         alternatives=("FAPbI3", "MAPbI3", "Mixed I/Br perovskite"),
         color="#2E1A47",
         thickness="450 nm",
+    ),
+    LayerSpec(
+        key="absorber_etl_barrier",
+        label="Absorber / ETL interlayer (optional)",
+        role="Internal passivation or ion-blocking layer at the electron-selective interface",
+        baseline="None",
+        alternatives=(
+            "2D perovskite",
+            "Ultrathin Al2O3",
+            "LiF",
+            "2D perovskite + LiF bilayer",
+        ),
+        color="#60A5FA",
+        thickness="0 nm",
     ),
     LayerSpec(
         key="etl",
