@@ -15,11 +15,17 @@ checked into the repository rather than built on deploy. Training takes several
 minutes of CPU and Community Cloud will time out or thrash trying to do it during
 app startup, so the app would simply never come up.
 
-The consequence is that **the pinned scikit-learn version matters**. joblib
-artifacts are tied to the library version that wrote them; `requirements.txt`
-pins `scikit-learn==1.5.2` for exactly this reason. If you upgrade scikit-learn,
-re-run `python scripts/train_models.py` and commit the regenerated artifacts in
-the same change.
+The consequence used to be that **exact pins mattered**. They now hurt more than
+they help on Streamlit Community Cloud, which picks its own Python version and
+ignores `.python-version`: pinning to 3.11-era wheels made `pip` fail to resolve
+scikit-learn, and the app launched without it and crashed on import.
+
+`requirements.txt` therefore declares **floors, not exact pins**. The joblib
+artifacts were written by scikit-learn 1.5.2 and verified to load and predict
+identically under scikit-learn 1.9 / NumPy 2.5 / pandas 3.0 / Python 3.12 --
+same result to four decimal places, with only a benign version-mismatch warning
+on unpickling. If you upgrade far enough that this stops holding, re-run
+`python scripts/train_models.py` and commit the regenerated artifacts.
 
 The app degrades gracefully if the artifacts are missing: every page shows a
 "Models not built yet" notice with the command to run, rather than a traceback.

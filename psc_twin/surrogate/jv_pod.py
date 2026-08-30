@@ -35,7 +35,6 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import LeaveOneGroupOut
 
 from psc_twin.data import DoeBundle, load_doe
 from psc_twin.surrogate.scalar_gp import (
@@ -469,6 +468,11 @@ def cross_validate(
     and then testing on a held-out one would leak that run's curve shape into
     the basis -- a subtle form of the same mistake as an ungrouped split.
     """
+    # Imported here rather than at module scope: this is the only function that
+    # needs it, and keeping it out of the import chain means the inference path
+    # (predict -> jv_pod) does not depend on sklearn.model_selection at all.
+    from sklearn.model_selection import LeaveOneGroupOut
+
     bundle = bundle if bundle is not None else load_doe()
     X = bundle.feature_matrix()
     curves = bundle.curve_matrix
