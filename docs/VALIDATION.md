@@ -232,7 +232,7 @@ document.
 
 ```bash
 python scripts/train_models.py     # writes every table above
-python -m pytest tests -q          # 41 invariant tests, incl. no-leakage
+python -m pytest tests -q          # 44 invariant tests, incl. no-leakage
 ```
 
 The full validation is 180 scalar fits plus 144 curve-coefficient fits, each

@@ -5,8 +5,10 @@
 1. Push this repository to GitHub (public).
 2. At [share.streamlit.io](https://share.streamlit.io), create an app pointing at
    this repo with **main file** `app.py`.
-3. Nothing else to configure. `requirements.txt` and `.python-version` pin the
-   environment, and `.streamlit/config.toml` carries the theme.
+3. Nothing else to configure. `requirements.txt` declares compatible dependency
+   floors, `.python-version` documents the local target interpreter, and
+   `.streamlit/config.toml` carries the theme. Community Cloud may select a newer
+   compatible Python version.
 
 ### Why the trained models are committed
 
@@ -88,7 +90,7 @@ console says plainly that the artifacts are **not** publication grade.
 ### Verifying an install
 
 ```bash
-python -m pytest tests -q      # 41 invariant tests
+python -m pytest tests -q      # 44 invariant tests
 python scripts/benchmark.py    # inference latency
 ```
 

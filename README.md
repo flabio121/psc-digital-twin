@@ -209,7 +209,7 @@ data/doe/                   the 6×6 campaign (CC BY 4.0)
 ```bash
 python scripts/train_models.py     # fit + full leave-one-run-out validation
 python scripts/benchmark.py        # inference latency
-python -m pytest tests -q          # 41 invariant tests
+python -m pytest tests -q          # 44 invariant tests
 ```
 
 `models/model_card.json` records the training data, design envelope, fitted
