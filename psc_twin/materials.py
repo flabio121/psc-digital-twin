@@ -19,6 +19,7 @@ class LayerSpec:
     alternatives: tuple[str, ...]
     color: str
     thickness: str
+    thickness_note: str = ""
 
     @property
     def options(self) -> tuple[str, ...]:
@@ -57,24 +58,32 @@ LAYERS: tuple[LayerSpec, ...] = (
         key="htl",
         label="Hole transport layer",
         role="Carries holes to the front contact",
-        baseline="NiOx + MeO-2PACz",
+        baseline="NiOx",
         alternatives=("PTAA", "PEDOT:PSS", "Spiro-OMeTAD"),
         color="#7C3AED",
-        thickness="20 nm",
+        thickness="20 nm combined domain",
+        thickness_note=(
+            "The thesis COMSOL geometry reports 20 nm for the combined "
+            "NiOx/MeO-2PACz domain; it does not resolve the two thicknesses independently."
+        ),
     ),
     LayerSpec(
         key="htl_absorber_barrier",
-        label="HTL / absorber interlayer (optional)",
-        role="Internal passivation or ion-blocking layer at the hole-selective interface",
-        baseline="None",
+        label="HTL / absorber interlayer",
+        role="Hole-side self-assembled monolayer or alternative interface treatment",
+        baseline="MeO-2PACz SAM",
         alternatives=(
-            "MeO-2PACz SAM",
+            "None",
             "2D perovskite",
             "Ultrathin Al2O3",
             "SAM + Al2O3 bilayer",
         ),
         color="#A78BFA",
-        thickness="0 nm",
+        thickness="Not separately resolved",
+        thickness_note=(
+            "MeO-2PACz is present in the validated physical stack, but its thickness "
+            "was combined with NiOx in the thesis COMSOL domain."
+        ),
     ),
     LayerSpec(
         key="absorber",
@@ -103,10 +112,27 @@ LAYERS: tuple[LayerSpec, ...] = (
         key="etl",
         label="Electron transport layer",
         role="Carries electrons to the rear contact",
-        baseline="C60 + BCP",
-        alternatives=("PCBM + BCP", "SnO2", "TiO2"),
+        baseline="C60",
+        alternatives=("PCBM", "SnO2", "TiO2"),
         color="#2563EB",
-        thickness="29 nm",
+        thickness="29 nm combined domain",
+        thickness_note=(
+            "The thesis COMSOL geometry reports 29 nm for the combined C60/BCP "
+            "domain; it does not resolve the two thicknesses independently."
+        ),
+    ),
+    LayerSpec(
+        key="etl_rear_interlayer",
+        label="ETL / rear-contact interlayer",
+        role="Electron-side buffer layer between the ETL and metal electrode",
+        baseline="BCP",
+        alternatives=("None", "LiF", "SnO2 / BCP bilayer"),
+        color="#93C5FD",
+        thickness="Not separately resolved",
+        thickness_note=(
+            "BCP is present in the validated physical stack, but its thickness was "
+            "combined with C60 in the thesis COMSOL domain."
+        ),
     ),
     LayerSpec(
         key="rear_contact",

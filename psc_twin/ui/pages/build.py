@@ -14,13 +14,18 @@ from psc_twin.ui import components as ui
 
 def _material_label(layer, material: str) -> str:
     if material == layer.baseline:
-        return f"{material}  -  simulated baseline"
+        return f"{material}  -  validated physical baseline"
     return f"{material}  -  locked until COMSOL data exists"
 
 
-def _thickness_parts(thickness: str) -> tuple[float, str]:
-    value, unit = thickness.split(maxsplit=1)
-    return float(value), unit
+def _thickness_parts(thickness: str) -> tuple[float | None, str]:
+    parts = thickness.split(maxsplit=1)
+    if len(parts) != 2:
+        return None, thickness
+    try:
+        return float(parts[0]), parts[1]
+    except ValueError:
+        return None, thickness
 
 
 def render(goto: Callable[[str], None]) -> None:
@@ -76,9 +81,10 @@ def render(goto: Callable[[str], None]) -> None:
     st.markdown("---")
     st.markdown("## 2. Choose a material for every layer")
     st.caption(
-        "External barriers and internal interface layers are optional. Leaving them "
-        "at None preserves the validated ASU thesis stack; adding a SAM, passivation "
-        "layer, encapsulant, or bilayer creates an exploration-only design."
+        "The physical baseline separates NiOx from its MeO-2PACz SAM and C60 from "
+        "its BCP buffer layer. The ASU thesis COMSOL export grouped each pair into "
+        "one computational domain; that bookkeeping does not make them one material. "
+        "Additional barriers, passivation layers, and bilayers remain optional and locked."
     )
 
     controls, visual = st.columns([1.05, 1.15], gap="large")
@@ -88,16 +94,20 @@ def render(goto: Callable[[str], None]) -> None:
             current = st.session_state.get(key, layer.baseline)
             if current not in layer.options:
                 current = layer.baseline
+                st.session_state[key] = current
             st.selectbox(
                 f"{number}. {layer.label}",
                 layer.options,
                 index=layer.options.index(current),
                 key=key,
                 format_func=lambda value, spec=layer: _material_label(spec, value),
-                help=f"{layer.role}. Baseline thickness: {layer.thickness}.",
+                help=(
+                    f"{layer.role}. Baseline thickness: {layer.thickness}. "
+                    f"{layer.thickness_note}"
+                ).strip(),
             )
 
-        if st.button("Reset all layers to the simulated baseline", width="stretch"):
+        if st.button("Reset all layers to the validated physical baseline", width="stretch"):
             st.session_state["_reset_materials"] = True
             st.rerun()
 
@@ -133,7 +143,9 @@ def render(goto: Callable[[str], None]) -> None:
     ui.banner(
         "Thickness values are shown at the ASU thesis COMSOL baseline. The controls "
         "are visible but locked because the current simulation campaign did not "
-        "sweep geometry, so changing them cannot produce a defensible prediction.",
+        "sweep geometry, so changing them cannot produce a defensible prediction. "
+        "MeO-2PACz and BCP are shown separately as physical layers, but their "
+        "individual thicknesses were not resolved from the combined COMSOL domains.",
         kind="planned",
         title="Planned · thickness-aware model",
     )
@@ -141,16 +153,26 @@ def render(goto: Callable[[str], None]) -> None:
     for index, layer in enumerate(LAYERS):
         baseline_value, unit = _thickness_parts(layer.thickness)
         with thickness_cols[index % 3]:
-            st.number_input(
-                f"{layer.label} ({unit})",
-                value=baseline_value,
-                disabled=True,
-                key=f"thickness_{layer.key}",
-                help=(
-                    f"Fixed ASU thesis baseline: {layer.thickness}. Unlocks after "
-                    "a thickness-resolved COMSOL campaign is validated."
-                ),
-            )
+            help_text = (
+                f"ASU thesis baseline: {layer.thickness}. {layer.thickness_note} "
+                "Unlocks after a thickness-resolved COMSOL campaign is validated."
+            ).strip()
+            if baseline_value is None:
+                st.text_input(
+                    layer.label,
+                    value=layer.thickness,
+                    disabled=True,
+                    key=f"thickness_{layer.key}",
+                    help=help_text,
+                )
+            else:
+                st.number_input(
+                    f"{layer.label} ({unit})",
+                    value=baseline_value,
+                    disabled=True,
+                    key=f"thickness_{layer.key}",
+                    help=help_text,
+                )
 
     st.markdown("---")
     st.markdown("## 4. Choose the aging conditions")

@@ -72,6 +72,7 @@ def cell_stack(materials: dict[str, str]) -> Figure:
         "absorber": 1.55,
         "absorber_etl_barrier": 0.26,
         "etl": 0.46,
+        "etl_rear_interlayer": 0.26,
         "rear_contact": 0.52,
         "rear_barrier": 0.28,
     }

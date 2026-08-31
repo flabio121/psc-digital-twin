@@ -79,11 +79,22 @@ class TestPlannedNeverAnswers:
         assert not is_baseline_design(custom)
         assert capabilities.get("barrier_layers").tier is Tier.PLANNED
 
-    def test_internal_interlayers_default_off_and_lock_when_enabled(self):
-        assert BASELINE_MATERIALS["htl_absorber_barrier"] == "None"
+    def test_transport_and_baseline_interlayers_are_physically_separate(self):
+        assert BASELINE_MATERIALS["htl"] == "NiOx"
+        assert BASELINE_MATERIALS["htl_absorber_barrier"] == "MeO-2PACz SAM"
         assert BASELINE_MATERIALS["absorber_etl_barrier"] == "None"
+        assert BASELINE_MATERIALS["etl"] == "C60"
+        assert BASELINE_MATERIALS["etl_rear_interlayer"] == "BCP"
+        assert "NiOx + MeO-2PACz" not in BASELINE_MATERIALS.values()
+        assert "C60 + BCP" not in BASELINE_MATERIALS.values()
+        assert is_baseline_design(BASELINE_MATERIALS)
+
+    def test_alternative_internal_interlayers_lock_results(self):
         custom = dict(BASELINE_MATERIALS)
         custom["htl_absorber_barrier"] = "SAM + Al2O3 bilayer"
+        assert not is_baseline_design(custom)
+        custom = dict(BASELINE_MATERIALS)
+        custom["etl_rear_interlayer"] = "LiF"
         assert not is_baseline_design(custom)
         assert capabilities.get("internal_interlayers").tier is Tier.PLANNED
 

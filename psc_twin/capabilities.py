@@ -150,7 +150,8 @@ CAPABILITIES: tuple[Capability, ...] = (
         backing=(
             "The Arizona State University thesis COMSOL campaign contains only the "
             "baseline glass / ITO / "
-            "NiOx + MeO-2PACz / Cs0.2FA0.8PbI3 / C60 + BCP / Ag stack."
+            "NiOx / MeO-2PACz SAM / Cs0.2FA0.8PbI3 / C60 / BCP / Ag physical stack. "
+            "The COMSOL geometry groups each transport/interface pair into one domain."
         ),
         unlocks=(
             "Run and validate a material-resolved COMSOL design campaign, then train "
@@ -194,8 +195,10 @@ CAPABILITIES: tuple[Capability, ...] = (
         tier=Tier.PLANNED,
         version="v2",
         backing=(
-            "The ASU thesis surrogate does not vary internal interface-layer "
-            "identity, thickness, defect density, or ion-blocking properties."
+            "The ASU thesis baseline includes MeO-2PACz and BCP interface layers, "
+            "although the COMSOL geometry groups them with NiOx and C60. The surrogate "
+            "does not independently vary their identity, thickness, defect density, "
+            "or ion-blocking properties."
         ),
         unlocks=(
             "Add explicit interface domains or boundary conditions to COMSOL, sweep "
